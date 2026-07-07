@@ -10,7 +10,7 @@ entity control_unit is
 
         --ALU input signals
         ALUop: out STD_LOGIC_VECTOR(2 downto 0);
-        ash: out STD_LOGIC;
+        ash: out STD_LOGIC; --signal for arithmetic shift right
         subtraction: out STD_LOGIC;
 
         --Register read signals
@@ -39,7 +39,7 @@ entity control_unit is
         JNE: out STD_LOGIC;
 
         HLT: out STD_LOGIC;
-        mem_write: out STD_LOGIC
+        mem_write: out STD_LOGIC --when 1, data from MDR is written in the address stored in MAR
     );
 end control_unit;
 
@@ -47,8 +47,8 @@ architecture Behavioral of control_unit is
 
     signal step: STD_LOGIC_VECTOR(7 downto 0);
     signal rst: STD_LOGIC;
-
-begin
+        
+begin    
     counter: entity work.counter
         generic map(G_BITS => 3)
         port map(
@@ -85,6 +85,7 @@ begin
         JNE <= '0';
         HLT <= '0';
         mem_write <= '0';
+        rst <= '0';
 
         case step is 
         when "000" =>
@@ -159,6 +160,7 @@ begin
                         ALUop <= "000";
                         subtraction <= '1';
                         MDRout <= '1';
+                        Flagin <= '1';
                 end if;
         when "110" =>
                 if unsigned(opcode) > 8 then
@@ -176,6 +178,8 @@ begin
                 elsif unsigned(opcode) = 8 then --CMP instruction
                         ALUop <= "000";
                         subtraction <= '1';
+                        MDRout <= '1';
+                        Flagin <= '1';
                 elsif unsigned(opcode) = 6 then --LDA instruction
                         ACCin <= '1';
                         MDRout <= '0';
