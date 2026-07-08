@@ -7,6 +7,7 @@ entity control_unit is
     port (
         clk: in STD_LOGIC;
         opcode: in STD_LOGIC_VECTOR(7 downto 0);
+        btn_press: in STD_LOGIC;
 
         --ALU input signals
         ALUop: out STD_LOGIC_VECTOR(2 downto 0);
@@ -47,6 +48,7 @@ architecture Behavioral of control_unit is
 
     signal step: STD_LOGIC_VECTOR(7 downto 0);
     signal rst: STD_LOGIC;
+    signal count_en: STD_LOGIC;
         
 begin    
     counter: entity work.counter
@@ -54,7 +56,7 @@ begin
         port map(
             clk => clk,
             rst => rst,
-            en => '1',
+            en => count_en,
             cnt => step
             );
 
@@ -86,6 +88,7 @@ begin
         HLT <= '0';
         mem_write <= '0';
         rst <= '0';
+        count_en <= '1';
 
         case step is 
         when "000" =>
@@ -123,6 +126,10 @@ begin
                                 OUTin <= '1';
                         when x"19" =>
                                 HLT <= '1';
+                        when x"1a" =>
+                                if btn_press ='0' then
+                                    count_en <= '0';
+                                end if;
                     end case;
                 end if;
         when "100" => 
