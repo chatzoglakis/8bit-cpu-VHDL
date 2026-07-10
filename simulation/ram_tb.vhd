@@ -50,6 +50,8 @@ begin
         wait for 10 ns;
         assert data_out /= x"33" report "Write enable not working" severity error;
         wait for 90 ns;
+
+        wait;
     end process;
 
 end Behavioral;
