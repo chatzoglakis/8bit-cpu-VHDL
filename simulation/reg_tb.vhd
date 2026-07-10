@@ -11,7 +11,7 @@ constant clkPeriod: time := 10 ns;
 
 signal clk:  STD_LOGIC;
 signal en:  STD_LOGIC;
-signal rst:  STD_LOGIC;
+signal clear:  STD_LOGIC;
 signal data_in:  STD_LOGIC_VECTOR(7 downto 0);
 signal data_out:  STD_LOGIC_VECTOR(7 downto 0);
 
@@ -20,7 +20,7 @@ begin
         port map(
             clk => clk,
             en => en,
-            rst => rst,
+            clear => clear,
             data_in => data_in,
             data_out => data_out
         );
@@ -36,7 +36,7 @@ begin
     stimuli: process
     begin
         report "TESTING RAM WRITE AND READ";
-        rst <= '0';
+        clear <= '0';
         data_in <= x"32";
         en <= '1';
         wait for 10 ns;
@@ -50,11 +50,11 @@ begin
         assert data_out /= x"33" report "Write enable not working" severity error;
         wait for 90 ns;
 
-        report "TESTING RESET SIGNAL";
-        rst <= '1';
+        report "TESTING CLEAR SIGNAL";
+        clear <= '1';
         en <= '1';
         wait for 10 ns;
-        assert data_out = x"00" report "Reset signal not working" severity error;
+        assert data_out = x"00" report "Clear signal not working" severity error;
         wait for 90 ns;
         
         wait;
