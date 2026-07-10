@@ -7,7 +7,7 @@ entity reg is
     port (
         clk: in STD_LOGIC;
         en: in STD_LOGIC;
-        rst: in STD_LOGIC;
+        clear: in STD_LOGIC;
         data_in: in STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
         data_out: out STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0)
     );
@@ -19,7 +19,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if rst = '1' then
+            if clear = '1' then
                 data_out <= (others => '0');
             elsif en = '1' then
                 data_out <= data_in;
