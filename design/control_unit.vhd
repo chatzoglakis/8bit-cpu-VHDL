@@ -38,15 +38,13 @@ entity control_unit is
         JGT: out STD_LOGIC;
         JEQ: out STD_LOGIC;
         JNE: out STD_LOGIC;
-
-        HLT: out STD_LOGIC;
         mem_write: out STD_LOGIC --when 1, data from MDR is written in the address stored in MAR
     );
 end control_unit;
 
 architecture Behavioral of control_unit is
 
-    signal step: STD_LOGIC_VECTOR(7 downto 0);
+    signal step: STD_LOGIC_VECTOR(2 downto 0);
     signal rst: STD_LOGIC;
     signal count_en: STD_LOGIC;
         
@@ -62,7 +60,7 @@ begin
 
     
     
-    control_logic: process(step, opcode)
+    control_logic: process(step, opcode, btn_press)
     begin
 
         ALUop <= "000";
@@ -85,7 +83,6 @@ begin
         JGT <= '0';
         JEQ <= '0';
         JNE <= '0';
-        HLT <= '0';
         mem_write <= '0';
         rst <= '0';
         count_en <= '1';
@@ -125,7 +122,7 @@ begin
                         when x"18" =>
                                 OUTin <= '1';
                         when x"19" =>
-                                HLT <= '1';
+                                count_en <= '0';
                         when x"1a" =>
                                 if btn_press ='0' then
                                     count_en <= '0';
