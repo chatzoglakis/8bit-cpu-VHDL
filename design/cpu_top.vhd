@@ -44,7 +44,6 @@ architecture Behavioral of cpu_top is
     signal JEQ: STD_LOGIC;
     signal JNE: STD_LOGIC;
 
-    signal HLT: STD_LOGIC;
     signal mem_write: STD_LOGIC; --when 1, data from MDR is written in the address stored in MAR
 
     --REGISTER SIGNALS
@@ -150,7 +149,6 @@ begin
               JGT         => JGT,
               JEQ         => JEQ,
               JNE         => JNE,
-              HLT         => HLT,
               mem_write   => mem_write
             );
     
