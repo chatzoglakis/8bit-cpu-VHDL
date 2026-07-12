@@ -97,40 +97,40 @@ begin
                 IRin <= '1';
                 MDRout <= '1';
         when "011" =>
-                if unsigned(opcode) < 20 then
+                if unsigned(opcode) < 21 then
                     MARin <= '1';
                     PCout <= '1';
                 else
                     case opcode is 
-                        when x"14" =>
-                                ACCin <= '1';
-                                ALUout <= '1';
-                                ALUop <= "101";
                         when x"15" =>
                                 ACCin <= '1';
                                 ALUout <= '1';
-                                ALUop <= "110";
+                                ALUop <= "101";
                         when x"16" =>
                                 ACCin <= '1';
                                 ALUout <= '1';
                                 ALUop <= "110";
-                                ash <= '1';
                         when x"17" =>
+                                ACCin <= '1';
+                                ALUout <= '1';
+                                ALUop <= "110";
+                                ash <= '1';
+                        when x"18" =>
                                 Accin <= '1';
                                 ALUout <='1';
                                 ALUop <= "111";
-                        when x"18" =>
-                                OUTin <= '1';
                         when x"19" =>
-                                count_en <= '0';
+                                OUTin <= '1';
                         when x"1a" =>
+                                count_en <= '0';
+                        when x"1b" =>
                                 if btn_press ='0' then
                                     count_en <= '0';
                                 end if;
                     end case;
                 end if;
         when "100" => 
-                if unsigned(opcode) > 19 then
+                if unsigned(opcode) > 20 then
                         rst <= '1';
                 else
                         MDRin <= '1';
@@ -160,11 +160,14 @@ begin
                             when x"11" => JGT <= '1';
                             when x"12" => JLT <= '1';
                         end case;
-                else --CMPI instruction
+                elsif unsigned(opcode) = 19 then --CMPI instruction
                         ALUop <= "000";
                         subtraction <= '1';
                         MDRout <= '1';
                         Flagin <= '1';
+                else --LDI instruction
+                        ACCin <= '1';
+                        MDRout <= '1';
                 end if;
         when "110" =>
                 if unsigned(opcode) > 8 then
