@@ -8,6 +8,7 @@ entity control_unit is
         clk: in STD_LOGIC;
         opcode: in STD_LOGIC_VECTOR(7 downto 0);
         btn_press: in STD_LOGIC;
+        sys_rst: in STD_LOGIC;
 
         --ALU input signals
         ALUop: out STD_LOGIC_VECTOR(2 downto 0);
@@ -53,7 +54,7 @@ begin
         generic map(G_BITS => 3)
         port map(
             clk => clk,
-            rst => rst,
+            rst => (rst or sys_rst),
             en => count_en,
             cnt => step
             );
@@ -91,6 +92,7 @@ begin
         when "000" =>
                 MARin <= '1';
                 PCout <='1';
+                PCin <= '1';
         when "001" =>
                 MDRin <= '1';
         when "010" =>
@@ -100,6 +102,7 @@ begin
                 if unsigned(opcode) < 21 then
                     MARin <= '1';
                     PCout <= '1';
+                    PCin <= '1'; 
                 else
                     case opcode is 
                         when x"15" =>
@@ -121,12 +124,15 @@ begin
                                 ALUop <= "111";
                         when x"19" =>
                                 OUTin <= '1';
+                                ACCout <= '0';
                         when x"1a" =>
                                 count_en <= '0';
                         when x"1b" =>
                                 if btn_press ='0' then
                                     count_en <= '0';
                                 end if;
+                        when others =>
+                                null;
                     end case;
                 end if;
         when "100" => 
@@ -149,6 +155,7 @@ begin
                             when x"0b" => ALUop <= "011";
                             when x"0c" => ALUop <= "100";
                             when x"0d" => ALUop <= "001";
+                            when others => null;
                         end case;
                 elsif unsigned(opcode) < 19 then
                         PCin <= '1';
@@ -159,6 +166,7 @@ begin
                             when x"10" => JNE <= '1';
                             when x"11" => JGT <= '1';
                             when x"12" => JLT <= '1';
+                            when others => null;
                         end case;
                 elsif unsigned(opcode) = 19 then --CMPI instruction
                         ALUop <= "000";
@@ -203,8 +211,11 @@ begin
                             when x"03" => ALUop <= "011";
                             when x"04" => ALUop <= "100";
                             when x"05" => ALUop <= "001";
+                            when others => null; 
                         end case;
                 end if;
+
+        when others => null;
         end case;
         
     end process;
