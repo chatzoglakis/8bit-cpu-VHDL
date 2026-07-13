@@ -25,7 +25,7 @@ architecture Behavioral of ram is
     --THIS FUNCTION IS USED TO LOAD THE PROGRAM "program.hex" TO RAM. TO CHANGE THE PROGRAM LOADED, CHANGE THE NAME IN THE FIRST LINE
     --It doesnt run on the FPGA, but on the PC that's doing the synthesis
     impure function init_ram_from_file return ram_type is
-        file text_file : text open read_mode is "program.hex";
+        file text_file : text open read_mode is "add.hex";
         variable text_line : line;
         variable ram_content : ram_type := (others => (others => '0'));
         variable hex_val : std_logic_vector(7 downto 0);
@@ -52,9 +52,10 @@ begin
             if we = '1' then
                 ram(to_integer(unsigned(address))) <= data_in;
             end if;
-
-            data_out <= ram(to_integer(unsigned(address)));
         end if;
     end process;
+
+    --Asynchronous read
+    data_out <= ram(to_integer(unsigned(address)));
     
 end Behavioral;
