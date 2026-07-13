@@ -7,7 +7,8 @@ entity cpu_top is
         clk: in STD_LOGIC;
         seg: out STD_LOGIC_VECTOR(6 downto 0);
         digit_sel: out STD_LOGIC;
-        btn_in: in STD_LOGIC
+        btn_in: in STD_LOGIC;
+        rst_btn_in: in STD_LOGIC
     );
 end cpu_top;
 
@@ -93,6 +94,8 @@ begin
                 PC_input <= internal_bus;
             elsif JLT = '1' and negative_flag ='1' then
                 PC_input <= internal_bus;
+            else
+                PC_input <= PC_data;
             end if;
         else
             PC_input <= STD_LOGIC_VECTOR(unsigned(PC_data) + 1);
@@ -103,17 +106,17 @@ begin
 
     --REGISTERS
     IR: entity work.reg
-        port map(clk => clk, en => IRin, clear => '0', data_in => internal_bus, data_out => IR_data);
+        port map(clk => clk, en => IRin, clear => rst_btn_in, data_in => internal_bus, data_out => IR_data);
     MDR: entity work.reg
-        port map(clk => clk, en => MDRin, clear => '0', data_in => MDR_input, data_out => MDR_data);
+        port map(clk => clk, en => MDRin, clear => rst_btn_in, data_in => MDR_input, data_out => MDR_data);
     MAR: entity work.reg
-        port map(clk => clk, en => MARin, clear => '0', data_in => internal_bus, data_out => MAR_data);
+        port map(clk => clk, en => MARin, clear => rst_btn_in, data_in => internal_bus, data_out => MAR_data);
     ACC: entity work.reg
-        port map(clk => clk, en => ACCin, clear => '0', data_in => ACC_input, data_out => ACC_data);
+        port map(clk => clk, en => ACCin, clear => rst_btn_in, data_in => ACC_input, data_out => ACC_data);
     OUT_REG: entity work.reg
-        port map(clk => clk, en => OUTin, clear => '0', data_in => internal_bus, data_out => OUT_data);
+        port map(clk => clk, en => OUTin, clear => rst_btn_in, data_in => internal_bus, data_out => OUT_data);
     PC: entity work.reg
-        port map(clk => clk, en => PCin, clear => '0', data_in => PC_input, data_out => PC_data);
+        port map(clk => clk, en => PCin, clear => rst_btn_in, data_in => PC_input, data_out => PC_data);
 
     --RAM
     RAM: entity work.ram
@@ -129,6 +132,7 @@ begin
         port map (clk     => clk,
               opcode      => IR_data,
               btn_press   => btn_press,
+              sys_rst     => rst_btn_in,
               ALUop       => ALUop,
               ash         => ash,
               subtraction => subtraction,
@@ -162,7 +166,7 @@ begin
     );
 
     --BUTTON PRESS DEBOUNCER
-    debouncer: entity work.debounce
+    debouncer1: entity work.debounce
      port map(
         clk => clk,
         rst => '0',
