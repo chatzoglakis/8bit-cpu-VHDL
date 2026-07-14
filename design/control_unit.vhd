@@ -124,7 +124,7 @@ begin
                                 ALUop <= "111";
                         when x"19" =>
                                 OUTin <= '1';
-                                ACCout <= '0';
+                                ACCout <= '1';
                         when x"1a" =>
                                 count_en <= '0';
                         when x"1b" =>
@@ -197,7 +197,7 @@ begin
                         Flagin <= '1';
                 elsif unsigned(opcode) = 6 then --LDA instruction
                         ACCin <= '1';
-                        MDRout <= '0';
+                        MDRout <= '1';
                 else
                         ACCin <= '1';
                         MDRout <= '1';
