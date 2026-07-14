@@ -16,6 +16,10 @@ def find_labels(lines):
             label = line.split(":")[0]
             num_string = str(hex(curr_byte))
             num_string = num_string.replace("0x", "") #remove 0x so that only the hex number remains
+
+            if int(num_string) < 10:
+                num_string = '0' + num_string
+
             label_addresses[label] = num_string
 
             if len(fields) > 2:
@@ -80,14 +84,14 @@ for line in lines:
     instruction = fields[index]
 
     if instruction in opcodes:
-        machine_code.append(opcodes[instruction] + ' ')
+        machine_code.append(opcodes[instruction])
 
         if len(fields) > 1:
             index += 1
             operand = fields[index]
             if operand in labels and operand != declared_label:
                 operand = labels[operand]
-            machine_code.append(operand + ' ')
+            machine_code.append(operand)
     else:
         print("ERROR: UNKNOWN INSTRUCTION: " + instruction)
         sys.exit(1)
