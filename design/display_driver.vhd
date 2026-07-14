@@ -13,18 +13,29 @@ end display_driver;
 
 architecture Behavioral of display_driver is
 
+signal ce: STD_LOGIC;
+
 signal bin: STD_LOGIC_VECTOR(3 downto 0);
 signal bin0: std_logic_vector(3 downto 0);
 signal bin1: std_logic_vector(3 downto 0);
 signal cnt: STD_LOGIC_VECTOR(0 downto 0);
 
 begin
+
+    clock_enable : entity work.clk_en
+        generic map ( G_MAX => 1_000_000 )  -- Adjust for flicker-free multiplexing
+        port map (                  -- For simulation: 8
+            clk => clk,             -- For implementation: 8_000_000
+            rst => '0',
+            ce  => ce
+        );
+
     counter: entity work.counter
         generic map(G_BITS => 1)
         port map(
             clk => clk,
             rst => '0',
-            en => '1',
+            en => ce,
             cnt => cnt
             );
     
@@ -32,16 +43,8 @@ begin
     bin0 <= data(3 downto 0);
     bin1 <= data(7 downto 4);
 
-    select_display: process (cnt)
-    begin
-        if cnt = "0" then
-            bin <= bin0;
-            digit_sel <= '0';
-        else
-            bin <= bin1;
-            digit_sel <= '1'; 
-        end if;
-    end process;
+    bin <= bin1 when cnt(0) = '0' else bin0;
+    digit_sel <= cnt(0);
 
     bin2seg: entity work.bin2seg
      port map(
@@ -50,3 +53,4 @@ begin
     );
     
 end Behavioral;
+
