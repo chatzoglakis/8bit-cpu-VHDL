@@ -1,0 +1,4 @@
+LDI 05
+ADDI 04
+OUT
+HLT
