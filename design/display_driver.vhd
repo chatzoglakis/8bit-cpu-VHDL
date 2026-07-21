@@ -23,9 +23,9 @@ signal cnt: STD_LOGIC_VECTOR(0 downto 0);
 begin
 
     clock_enable : entity work.clk_en
-        generic map ( G_MAX => 1_000_000 )  -- Adjust for flicker-free multiplexing
-        port map (                  -- For simulation: 8
-            clk => clk,             -- For implementation: 8_000_000
+        generic map ( G_MAX => 1_000_000 )
+        port map (        
+            clk => clk,
             rst => '0',
             ce  => ce
         );
