@@ -5,10 +5,12 @@ use IEEE.NUMERIC_STD.ALL;
 entity cpu_top is
     port(
         clk: in STD_LOGIC;
-        seg: out STD_LOGIC_VECTOR(6 downto 0);
-        digit_sel: out STD_LOGIC;
         btn_in: in STD_LOGIC;
-        rst_btn_in: in STD_LOGIC
+        rst_btn_in: in STD_LOGIC;
+        prog_mode: in STD_LOGIC; --switch to toggle between loading a program and running it
+        rx: in STD_LOGIC; --uart receiver cable
+        seg: out STD_LOGIC_VECTOR(6 downto 0);
+        digit_sel: out STD_LOGIC
     );
 end cpu_top;
 
@@ -69,11 +71,48 @@ architecture Behavioral of cpu_top is
     signal btn_press: STD_LOGIC;
     signal btn_state: STD_LOGIC;
 
+    signal ram_address: STD_LOGIC_VECTOR(7 downto 0);
+    signal ram_data: STD_LOGIC_VECTOR(7 downto 0);
+    signal ram_we: STD_LOGIC;
+
+    signal boot_address: STD_LOGIC_VECTOR(7 downto 0);
+    signal boot_data: STD_LOGIC_VECTOR(7 downto 0);
+    signal boot_we: STD_LOGIC;
+
 begin
 
-    MDR_input <= internal_bus when IB_EB = '1' else external_bus;
-    ACC_input <= ALU_output when ALUout = '1' else internal_bus;
+    --used to load the RAM with programs
+    bootloader_controller: entity work.bootloader_controller
+     port map(
+        clk => clk,
+        rx => rx,
+        boot_address => boot_address,
+        boot_data => boot_data,
+        boot_we => boot_we
+    );
+
+
+    --REGISTERS
+    IR: entity work.reg
+        port map(clk => clk, en => IRin, clear => rst_btn_in, data_in => internal_bus, data_out => IR_data);
     
+    MDR_input <= internal_bus when IB_EB = '1' else external_bus;
+    MDR: entity work.reg
+        port map(clk => clk, en => MDRin, clear => rst_btn_in, data_in => MDR_input, data_out => MDR_data);
+    
+    MAR: entity work.reg
+        port map(clk => clk, en => MARin, clear => rst_btn_in, data_in => internal_bus, data_out => MAR_data);
+
+    ACC_input <= ALU_output when ALUout = '1' else internal_bus;
+    ACC: entity work.reg
+        port map(clk => clk, en => ACCin, clear => rst_btn_in, data_in => ACC_input, data_out => ACC_data);
+    
+    OUT_REG: entity work.reg
+        port map(clk => clk, en => OUTin, clear => rst_btn_in, data_in => internal_bus, data_out => OUT_data);
+    
+    PC: entity work.reg
+        port map(clk => clk, en => PCin, clear => rst_btn_in, data_in => PC_input, data_out => PC_data);
+
     pc_input_select: process(jmp_active, JMP, JEQ, JNE, JGT, JLT, zero_flag, negative_flag, internal_bus, PC_data)
     begin
         --There are 3 cases:
@@ -102,26 +141,13 @@ begin
         end if;
     end process;
 
-
-
-    --REGISTERS
-    IR: entity work.reg
-        port map(clk => clk, en => IRin, clear => rst_btn_in, data_in => internal_bus, data_out => IR_data);
-    MDR: entity work.reg
-        port map(clk => clk, en => MDRin, clear => rst_btn_in, data_in => MDR_input, data_out => MDR_data);
-    MAR: entity work.reg
-        port map(clk => clk, en => MARin, clear => rst_btn_in, data_in => internal_bus, data_out => MAR_data);
-    ACC: entity work.reg
-        port map(clk => clk, en => ACCin, clear => rst_btn_in, data_in => ACC_input, data_out => ACC_data);
-    OUT_REG: entity work.reg
-        port map(clk => clk, en => OUTin, clear => rst_btn_in, data_in => internal_bus, data_out => OUT_data);
-    PC: entity work.reg
-        port map(clk => clk, en => PCin, clear => rst_btn_in, data_in => PC_input, data_out => PC_data);
-
     --RAM
+    ram_data <= boot_data when prog_mode = '1' else MDR_data;
+    ram_address <= boot_address when prog_mode = '1' else MAR_data;
+    ram_we <= boot_we when prog_mode = '1' else mem_write;
     RAM: entity work.ram
         generic map(DATA_WIDTH => 8, ADDRESS_WIDTH => 8)
-        port map(clk => clk, address => MAR_data, we => mem_write, data_in => MDR_data, data_out => external_bus);
+        port map(clk => clk, address => ram_address, we => ram_we, data_in => ram_data, data_out => external_bus);
 
     --ALU
     ALU: entity work.alu
@@ -189,7 +215,7 @@ begin
         end if;
     end process;
 
-    process(clk)
+    flag_update: process(clk)
     begin
         if rising_edge(clk) then
             if Flagin = '1' then
