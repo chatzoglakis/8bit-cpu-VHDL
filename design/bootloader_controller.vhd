@@ -33,7 +33,6 @@ begin
     process(clk, rx_done, address_num)
     begin
         if rising_edge(clk) then
-            boot_we <= '0';
             if rx_done = '1' then
                 
                 if address_num < 255 then
