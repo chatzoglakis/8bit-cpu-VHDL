@@ -9,7 +9,7 @@ if len(sys.argv) != 1:
 ser = serial.Serial('COM3', 9600)
 time.sleep(2) # Give the port a second to initialize
 
-with open("program.bin", "rb") as file:
+with open(sys.argv[0], "rb") as file:
     firmware = file.read()
 
 print(f"Uploading {len(firmware)} bytes...")
