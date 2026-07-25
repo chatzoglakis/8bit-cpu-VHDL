@@ -14,11 +14,7 @@ def find_labels(lines):
 
         if ":" in line:
             label = line.split(":")[0]
-            num_string = str(hex(curr_byte))
-            num_string = num_string.replace("0x", "") #remove 0x so that only the hex number remains
-
-            if int(num_string) < 10:
-                num_string = '0' + num_string
+            num_string = str(curr_byte)
 
             label_addresses[label] = num_string
 
@@ -36,12 +32,34 @@ def find_labels(lines):
     return label_addresses
 
 opcodes = {
-    "ADD": "00", "SUB": "01", "AND": "02", "OR": "03", "XOR": "04",
-    "NAND": "05", "LDA": "06", "STA": "07", "CMP": "08", "ADDI": "09",
-    "ANDI": "0A", "ORI": "0B", "XORI": "0C", "NANDI": "0D", "JMP": "0E",
-    "JEQ": "0F", "JNE": "10", "JGT": "11", "JLT": "12", "CMPI": "13",
-    "LDI": "14", "SL": "15", "SR": "16", "ASR": "17", "NOT": "18",
-    "OUT": "19", "HLT": "1A", "WAIT": "1B"
+    "ADD":   "00000000",
+    "SUB":   "00000001",
+    "AND":   "00000010",
+    "OR":    "00000011",
+    "XOR":   "00000100",
+    "NAND":  "00000101",
+    "LDA":   "00000110",
+    "STA":   "00000111",
+    "CMP":   "00001000",
+    "ADDI":  "00001001",
+    "ANDI":  "00001010",
+    "ORI":   "00001011",
+    "XORI":  "00001100",
+    "NANDI": "00001101",
+    "JMP":   "00001110",
+    "JEQ":   "00001111",
+    "JNE":   "00010000",
+    "JGT":   "00010001",
+    "JLT":   "00010010",
+    "CMPI":  "00010011",
+    "LDI":   "00010100",
+    "SL":    "00010101",
+    "SR":    "00010110",
+    "ASR":   "00010111",
+    "NOT":   "00011000",
+    "OUT":   "00011001",
+    "HLT":   "00011010",
+    "WAIT":  "00011011"
 }
 
 if len(sys.argv) < 2 or len(sys.argv) > 3:
@@ -91,7 +109,7 @@ for line in lines:
             operand = fields[index]
             if operand in labels and operand != declared_label:
                 operand = labels[operand]
-            machine_code.append(operand)
+            machine_code.append(format(int(operand), '08b'))
     else:
         print("ERROR: UNKNOWN INSTRUCTION: " + instruction)
         sys.exit(1)
