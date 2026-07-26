@@ -6,6 +6,7 @@ entity bootloader_controller is
     port(
         clk: in STD_LOGIC;
         rx: in STD_LOGIC;
+        prog_mode: in STD_LOGIC;
         boot_address: out STD_LOGIC_VECTOR(7 downto 0);
         boot_data: out STD_LOGIC_VECTOR(7 downto 0);
         boot_we: out STD_LOGIC
@@ -33,7 +34,10 @@ begin
     process(clk, rx_done, address_num)
     begin
         if rising_edge(clk) then
-            if rx_done = '1' then
+            if prog_mode = '0' then
+                address_num <= 0;
+
+            elsif rx_done = '1' then
                 
                 if address_num < 255 then
                     address_num <= address_num + 1;
