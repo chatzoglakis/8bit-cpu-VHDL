@@ -78,14 +78,17 @@ architecture Behavioral of cpu_top is
     signal boot_address: STD_LOGIC_VECTOR(7 downto 0);
     signal boot_data: STD_LOGIC_VECTOR(7 downto 0);
     signal boot_we: STD_LOGIC;
+    signal sys_rst: STD_LOGIC;
 
 begin
+    sys_rst <= '1' when prog_mode = '1' else rst_btn_in;
 
     --used to load the RAM with programs
     bootloader_controller: entity work.bootloader_controller
      port map(
         clk => clk,
         rx => rx,
+        prog_mode => prog_mode,
         boot_address => boot_address,
         boot_data => boot_data,
         boot_we => boot_we
@@ -158,7 +161,7 @@ begin
         port map (clk     => clk,
               opcode      => IR_data,
               btn_press   => btn_press,
-              sys_rst     => rst_btn_in,
+              sys_rst     => sys_rst,
               ALUop       => ALUop,
               ash         => ash,
               subtraction => subtraction,
