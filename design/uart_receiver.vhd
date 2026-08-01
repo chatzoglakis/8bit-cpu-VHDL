@@ -21,7 +21,7 @@ constant CLK_FREQ : integer := 125_000_000;
 constant BAUDRATE : integer := 9_600;        -- Baud rate (9600 Bd)
 
 -- Number of clock cycles per bit period for baud rate timing
-constant MAX : integer := 2;-- 2 for simulation
+constant MAX : integer := CLK_FREQ / BAUDRATE;-- 2 for simulation
                             -- CLK_FREQ / BAUDRATE for implementation
 
 signal baud_count: integer range 0 to MAX-1 := 0;  
